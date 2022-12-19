@@ -14,11 +14,19 @@ public:
     vector();
     vector(int Size);
     vector(int Size, Type_Name Value);
+    vector(const initializer_list<Type_Name>& List);
     ~vector();
 
     // Modifiers
     void push_back(int Value);
     void pop_back();
+    void insert(int Index, Type_Name Value);
+    void erase(int Index);
+    void clear();
+
+    // Iterators
+    Type_Name* begin();
+    Type_Name* end();
 
     // Capacity
     bool empty();
@@ -30,35 +38,52 @@ public:
     Type_Name& front();
     Type_Name& back();
 
-
+    //print
+    void print();
 };
-
+//
+template <typename Type_Name>
+void vector<Type_Name>::print()
+{
+    for(int i = 0; i < Size; i++)
+    {
+        cout << Array[i] << " ";
+    }
+}
 /*================CREATE VECTOR==============*/
 
 // create a vector
 template <typename Type_Name>
 vector<Type_Name>::vector()
-    : Size(0), Capacity(10), Array(new Type_Name[Capacity])
+    : Size(0), Capacity(0), Array(new Type_Name[Capacity])
 {
 }
 
 //overload create a vector with one argument
 template <typename Type_Name>
 vector<Type_Name>::vector(int Size)
-    : Size(Size), Capacity(2*Size), Array(new Type_Name[Capacity])
+    : Size(Size), Capacity(Size), Array(new Type_Name[Capacity])
 {
 }
 
 //overload create a vector with two arguments
 template <typename Type_Name>
 vector<Type_Name>::vector(int Size, Type_Name Value)
-    : Size(Size), Capacity(2*Size), Array(new Type_Name[Capacity])
+    : Size(Size), Capacity(Size), Array(new Type_Name[Capacity])
 {
     for (size_t i = 0; i < Size; i++)
     {
         Array[i] = Value;
     }
     
+}
+
+template <typename Type_Name>
+vector<Type_Name>::vector(const initializer_list<Type_Name>& List)
+    :Size(0), Capacity(List.size() + 5), Array(new Type_Name[Capacity])
+{
+    for(int i : List)
+        push_back(i);
 }
 
 // destructure for a vector
@@ -76,8 +101,17 @@ vector<Type_Name>::~vector()
 template <typename Type_Name>
 void vector<Type_Name>::push_back(int Value)
 {
-    Array[Size] = Value;
-    ++Size;
+    if(Size < Capacity)
+    {
+        Array[Size] = Value;
+        ++Size;
+    }
+    else
+    {
+        Capacity = Capacity *2;
+        Array[Size] = Value;
+        ++Size;
+    }
 }
 
 // push back function
@@ -90,6 +124,75 @@ void vector<Type_Name>::pop_back()
     }
     else
         Size--;
+}
+
+// insert function
+template <typename Type_Name>
+void vector<Type_Name>::insert(int Index, Type_Name Value)
+{
+    if(Index < 0 || Index >= Size)
+    {
+        throw std::runtime_error("Insert - Index out of range");
+    }
+
+    if(Size < Capacity)
+    {
+
+        for (int i = Size - 1; i >= Index; --i)
+        {
+            Array[i + 1] = Array[i];
+        }
+
+        Array[Index] = Value;
+        ++Size;
+    }
+    else
+    {
+        Capacity = Capacity *2;
+        for (int i = Size - 1; i >= Index; --i)
+        {
+            Array[i + 1] = Array[i];
+        }
+
+        Array[Index] = Value;
+        ++Size;
+    }
+}
+
+// erase function
+template <typename Type_Name>
+void vector<Type_Name>::erase(int Index)
+{
+    if(Index < 0 || Index >= Size)
+    {
+        throw std::runtime_error("Erase - Index out of range");
+    }
+
+    for (size_t i = Index; i < Size - 1; i++)
+    {
+        Array[i] = Array[i+1];
+    }
+    --Size;  
+}
+
+template <typename Type_Name>
+void vector<Type_Name>::clear()
+{
+    Size = 0;
+}
+
+/*================MODIFIERS==============*/
+
+template <typename Type_Name>
+Type_Name* vector<Type_Name>::begin()
+{
+    return &Array[0];
+}
+
+template <typename Type_Name>
+Type_Name* vector<Type_Name>::end()
+{
+    return &Array[Size-1];
 }
 
 /*================CAPACITY==============*/
@@ -135,44 +238,60 @@ Type_Name& vector<Type_Name>::front()
 template <typename Type_Name>
 Type_Name& vector<Type_Name>::back()
 {
-    return Array[Size - 1];
+    return Array[Size-1];
 }
 
+void print(){
+    vector<int> v(7,7);
+
+    // check modifiers vector
+    v.push_back(8);
+    cout << "Vector after push back: ";
+    v.print();
+    cout << endl;
+
+    v.pop_back();
+    cout << "Vector after push back: ";
+    v.print();
+    cout << endl;
+
+    v.insert(2,3);
+    cout << v.size() << endl;
+    cout << v.capacity() << endl;
+    v.print();
+
+    v.erase(2);
+    cout << endl;
+    v.print();
+
+    // check iterator
+    for(auto i = v.begin(); i != v.end();)
+    {
+        cout << i << " ";
+        i++;
+    }
+
+    // check capacity
+    cout << "Size of vector: " << v.size() << endl;
+    cout << "Capacity of vector: " << v.capacity() << endl;
+
+    if(v.empty())
+        cout << "Vector is empty" << endl;
+    else
+        cout << "Vector is not empty" << endl;
+
+    // check element access
+    cout << "Front of vector: " << v.front() << endl;
+    cout << "Back of vector: " << v.back() << endl;
+
+    v.clear();
+    cout << "Size of vector after clear: " << v.size() << endl;
+}
 int main()
 {
-    //vector<int> V;
-    vector<int> V1(3);
-
-    cout << "Size of V1 vector: "<< V1.size() << endl;
-    cout << "Capacity of V1 vector: "<< V1.capacity() << endl;
-    cout << "Font element: " << V1.front() << endl;
-    cout << "Back element: " << V1.back() << endl;
-
-    cout << "Elements in V1 vector: ";
-    for (size_t i = 0; i < V1.size(); i++)
-    {
-        cout << V1[i] << " ";
-    }
-
-    V1.pop_back();
-    cout << V1[V1.size()+1] << endl;
-
-    cout << "=================================" << endl;
-    vector<float> V(3, 5.6);
-
-    cout << "Size of V vector: "<< V.size() << endl;
-    cout << "Capacity of V vector: "<< V.capacity() << endl;
-    cout << "\nFont element: " << V.front() << endl;
-    cout << "Back element: " << V.back() << endl;
-
-    cout << "Elements in V vector: ";
-    for (size_t i = 0; i < V.size(); i++)
-    {
-        cout << V[i] << " ";
-    }
-
-    V.pop_back();
-    cout << V[V.size()+1] << endl;
-
+    vector<int> V1{1, 2, 3, 4, 5};
+    V1.erase(2);
+    V1.push_back(6);
+    V1.print();
     return 0;
 }
